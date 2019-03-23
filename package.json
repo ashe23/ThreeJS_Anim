@@ -1,0 +1,17 @@
+{
+  "name": "TestThreeJSApp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "inflate": "0.0.7",
+    "three": "^0.101.1",
+    "three-fbx-loader": "^1.0.3"
+  }
+}
