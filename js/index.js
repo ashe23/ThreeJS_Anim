@@ -2,6 +2,8 @@ import {TextureToSpriteLoader} from "./SpriteLoader.js";
 import * as dat from '../../ThreeJS_Anim/node_modules/dat.gui/build/dat.gui.module.js';
 
 const FPS = 60;
+let duration = 2;
+const step = 1 / (duration * FPS);
 let BallTrackSprite;
 let ShouldSpin = true;
 let StartRotation = 0;
@@ -19,15 +21,21 @@ function ease(t) {
     return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 }
 
-function clamp(value, min , max)
-{
-    if( value < min) return min;
-    if(value > max) return max;
+function clamp(value, min, max) {
+    if (value < min) return min;
+    if (value > max) return max;
     return value;
 }
+
 function easeBackout(t) {
     const s = 1.70158;
     return t * t * ((s + 1) * t - s);
+}
+
+function RotateObject(t, delta) {
+    t += delta;
+    if (t < 0 || t > 1) t = -t;
+    BallTrackSprite.material.rotation = -lerp(0, Math.PI / 2, easeBackout(t));
 }
 
 class WebGLCore {
@@ -87,19 +95,28 @@ class WebGLCore {
         requestAnimationFrame(() => this.animate());
 
         let ElapsedTime = this.clock.getElapsedTime();
-
-        if(ShouldSpin === true && ElapsedTime >= 0 && ElapsedTime <= 1)
-        {
-            if(BallTrackSprite)
-            {
-                BallTrackSprite.material.rotation -= lerp(0, Math.PI, ElapsedTime);
+        time += step;
+        if (BallTrackSprite) {
+            if (ShouldSpin) {
+                BallTrackSprite.material.rotation = -lerp(0, Math.PI, ease(time / duration));
+                console.log(ElapsedTime, time, time / duration);
             }
-            console.log(ElapsedTime);
-
         }
-        else {
+
+        if (time > duration) {
             ShouldSpin = false;
         }
+
+
+        // if (ShouldSpin === true && ElapsedTime >= 0 && ElapsedTime <= 3) {
+        //     if (BallTrackSprite) {
+        //         console.log(ElapsedTime, easeBackout(ElapsedTime) / 3);
+        //         BallTrackSprite.material.rotation = -lerp(0, Math.PI / 2 , ElapsedTime);
+        //     }
+        //
+        // } else {
+        //     ShouldSpin = false;
+        // }
 
         // if(ShouldSpin)
         // {
