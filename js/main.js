@@ -1,10 +1,10 @@
 // // initial setup
 //
 // class WebGLCore {
-//     constructor(window_width, window_height)
+//     constructor(windowWidth, windowHeight)
 //     {
-//         this.window_width = window_width;
-//         this.window_height = window_height;
+//         this.windowWidth = windowWidth;
+//         this.windowHeight = windowHeight;
 //         this.scene = {};
 //         this.camera = {};
 //         this.renderer = {};

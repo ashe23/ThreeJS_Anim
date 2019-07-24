@@ -1,15 +1,39 @@
 import {TextureToSpriteLoader} from "./SpriteLoader.js";
 import * as dat from '../../ThreeJS_Anim/node_modules/dat.gui/build/dat.gui.module.js';
 
-
+const FPS = 60;
 let BallTrackSprite;
-let ShouldSpin = false;
-let RotationSpeed = Math.PI * 2; // radian
+let ShouldSpin = true;
+let StartRotation = 0;
+let EndRotation = Math.PI;
+let time = 0;
+let endTime = 0;
+let endTimeSet = false;
+const SpinDuration = 1;
+
+function lerp(a, b, t) {
+    return (1 - t) * a + t * b;
+}
+
+function ease(t) {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+}
+
+function clamp(value, min , max)
+{
+    if( value < min) return min;
+    if(value > max) return max;
+    return value;
+}
+function easeBackout(t) {
+    const s = 1.70158;
+    return t * t * ((s + 1) * t - s);
+}
 
 class WebGLCore {
     constructor(RendererConfigs, CameraConfigs) {
-        this.width = RendererConfigs.window_width;
-        this.height = RendererConfigs.window_height;
+        this.width = RendererConfigs.windowWidth;
+        this.height = RendererConfigs.windowHeight;
         this.scene = {};
         this.camera = {};
         this.renderer = {};
@@ -26,7 +50,7 @@ class WebGLCore {
         this.renderer = new THREE.WebGLRenderer({antialias: true});
         this.controls = new THREE.TrackballControls(this.camera);
         this.clock = new THREE.Clock();
-        this.renderer.setSize(this.RendererConfigs.window_width, RendererConfigs.window_height);
+        this.renderer.setSize(this.RendererConfigs.windowWidth, RendererConfigs.windowHeight);
 
         // scene background setup
         this.scene.background = new THREE.Color(this.RendererConfigs.sceneColor);
@@ -62,18 +86,59 @@ class WebGLCore {
     animate() {
         requestAnimationFrame(() => this.animate());
 
-        if (BallTrackSprite) {
+        let ElapsedTime = this.clock.getElapsedTime();
 
-
-            if(ShouldSpin)
+        if(ShouldSpin === true && ElapsedTime >= 0 && ElapsedTime <= 1)
+        {
+            if(BallTrackSprite)
             {
-                let CurrentRotation = RotationSpeed / 60;
-                BallTrackSprite.material.rotation -= CurrentRotation;
+                BallTrackSprite.material.rotation -= lerp(0, Math.PI, ElapsedTime);
             }
+            console.log(ElapsedTime);
 
         }
+        else {
+            ShouldSpin = false;
+        }
 
-        TWEEN.update();
+        // if(ShouldSpin)
+        // {
+        //     time = ElapsedTime;
+        //     if(!endTimeSet)
+        //     {
+        //         endTimeSet = true;
+        //         endTime = time + SpinDuration;
+        //     }
+        //     if(ElapsedTime > endTime)
+        //     {
+        //         ShouldSpin = false;
+        //         endTimeSet = false;
+        //     }
+        //
+        //     let alpha = 0;
+        //     console.log(THREE.Math.randInt(0, 10));
+        //
+        // }
+
+
+        // if (ElapsedTime > 1 && ElapsedTime < 3)
+        // {
+        //     let rot = lerp(StartRotation, EndRotation, ElapsedTime) / FPS;
+        //     console.log(lerp(StartRotation, EndRotation, ElapsedTime));
+        //     BallTrackSprite.material.rotation -= rot;
+        // }
+        // if (BallTrackSprite) {
+        //     if (ShouldSpin) {
+        //         let CurrentRotation = lerp(StartRotation, EndRotation, ease(t));
+        //         if(CurrentRotation === EndRotation)
+        //         {
+        //             ShouldSpin = false;
+        //         }
+        //         CurrentRotation /= FPS;
+        //         BallTrackSprite.material.rotation -= CurrentRotation;
+        //     }
+        // }
+
 
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
@@ -104,8 +169,8 @@ let CameraConfigs = {
 };
 
 let RendererConfigs = {
-    window_width: window.innerWidth,
-    window_height: window.innerHeight,
+    windowWidth: window.innerWidth,
+    windowHeight: window.innerHeight,
     sceneColor: 0xd3d3d3,
     drawGridLines: false
 };
@@ -115,17 +180,17 @@ WebGLCoreWrapper.init();
 WebGLCoreWrapper.animate();
 WebGLCoreWrapper.SpriteLoad();
 
-const gui = new dat.GUI({resizable : false});
+const gui = new dat.GUI({resizable: false});
 
 
-let FizzyText = function() {
-    this.explode = function() {
+let FizzyText = function () {
+    this.explode = function () {
         // Spin Roulette
         ShouldSpin = !ShouldSpin;
     };
 };
 
-window.onload = function() {
+window.onload = function () {
     let layers = new FizzyText();
     gui.add(layers, 'explode');
 };
