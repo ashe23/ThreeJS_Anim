@@ -2,16 +2,17 @@ import {TextureToSpriteLoader} from "./SpriteLoader.js";
 import * as dat from '../../ThreeJS_Anim/node_modules/dat.gui/build/dat.gui.module.js';
 
 const FPS = 60;
-let duration = 2;
-const step = 1 / (duration * FPS);
+let duration = 20;
+const step = 1 / (FPS);
 let BallTrackSprite;
 let ShouldSpin = true;
-let StartRotation = 0;
-let EndRotation = Math.PI;
 let time = 0;
-let endTime = 0;
-let endTimeSet = false;
-const SpinDuration = 1;
+const NUMBER_COUNT = 36;
+const DesiredNumber = 3;
+const SpinCount = 1;
+
+const Angle = 0.1745;
+const NumberSequence = [6,21,13,36,11,30,8,23,5,24,18,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26,0,32,15,19,4,21,2,25,17,34];
 
 function lerp(a, b, t) {
     return (1 - t) * a + t * b;
@@ -19,6 +20,10 @@ function lerp(a, b, t) {
 
 function ease(t) {
     return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+}
+
+function easeOutQuart(t) {
+    return 1 - Math.pow(1 - t, 4);
 }
 
 function clamp(value, min, max) {
@@ -35,7 +40,7 @@ function easeBackout(t) {
 function RotateObject(t, delta) {
     t += delta;
     if (t < 0 || t > 1) t = -t;
-    BallTrackSprite.material.rotation = -lerp(0, Math.PI / 2, easeBackout(t));
+    BallTrackSprite.material.rotation = -lerp(0, Math.PI / 2, ease(t));
 }
 
 class WebGLCore {
@@ -98,64 +103,18 @@ class WebGLCore {
         time += step;
         if (BallTrackSprite) {
             if (ShouldSpin) {
-                BallTrackSprite.material.rotation = -lerp(0, Math.PI, ease(time / duration));
-                console.log(ElapsedTime, time, time / duration);
+                BallTrackSprite.material.rotation = lerp(0, Math.PI * 2 * SpinCount + NumberSequence.indexOf(DesiredNumber) * Angle, easeOutQuart(time / duration));
+                console.log(ElapsedTime, time / duration);
             }
         }
 
         if (time > duration) {
+            if (ShouldSpin) {
+                console.log(NumberSequence.indexOf(DesiredNumber) * Angle, DesiredNumber);
+                console.log('Final Rotation: ' + BallTrackSprite.material.rotation);
+            }
             ShouldSpin = false;
         }
-
-
-        // if (ShouldSpin === true && ElapsedTime >= 0 && ElapsedTime <= 3) {
-        //     if (BallTrackSprite) {
-        //         console.log(ElapsedTime, easeBackout(ElapsedTime) / 3);
-        //         BallTrackSprite.material.rotation = -lerp(0, Math.PI / 2 , ElapsedTime);
-        //     }
-        //
-        // } else {
-        //     ShouldSpin = false;
-        // }
-
-        // if(ShouldSpin)
-        // {
-        //     time = ElapsedTime;
-        //     if(!endTimeSet)
-        //     {
-        //         endTimeSet = true;
-        //         endTime = time + SpinDuration;
-        //     }
-        //     if(ElapsedTime > endTime)
-        //     {
-        //         ShouldSpin = false;
-        //         endTimeSet = false;
-        //     }
-        //
-        //     let alpha = 0;
-        //     console.log(THREE.Math.randInt(0, 10));
-        //
-        // }
-
-
-        // if (ElapsedTime > 1 && ElapsedTime < 3)
-        // {
-        //     let rot = lerp(StartRotation, EndRotation, ElapsedTime) / FPS;
-        //     console.log(lerp(StartRotation, EndRotation, ElapsedTime));
-        //     BallTrackSprite.material.rotation -= rot;
-        // }
-        // if (BallTrackSprite) {
-        //     if (ShouldSpin) {
-        //         let CurrentRotation = lerp(StartRotation, EndRotation, ease(t));
-        //         if(CurrentRotation === EndRotation)
-        //         {
-        //             ShouldSpin = false;
-        //         }
-        //         CurrentRotation /= FPS;
-        //         BallTrackSprite.material.rotation -= CurrentRotation;
-        //     }
-        // }
-
 
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
@@ -171,6 +130,7 @@ class WebGLCore {
         this.scene.add(TextureToSpriteLoader.load('Textures/1.png', new THREE.Vector3(240, 240, 1)));
         this.scene.add(TextureToSpriteLoader.load('Textures/2.png', new THREE.Vector3(230, 230, 1)));
         BallTrackSprite = TextureToSpriteLoader.load('Textures/3.png', new THREE.Vector3(180, 180, 1));
+        // BallTrackSprite.material.rotation = -0.17;
         this.scene.add(BallTrackSprite);
         this.scene.add(TextureToSpriteLoader.load('Textures/4.png', new THREE.Vector3(245, 245, 1)));
         this.scene.add(TextureToSpriteLoader.load('Textures/5.png', new THREE.Vector3(100, 100, 1)));
