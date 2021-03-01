@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "inflate": "0.0.7",
-    "three": "^0.101.1",
+    "three": "^0.125.0",
     "three-fbx-loader": "^1.0.3"
   }
 }
